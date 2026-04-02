@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "realtime-ecommerce-funnel-analytics"
+version = "0.1.0"
+description = "Local-first data engineering mono-repo for real-time e-commerce funnel analytics."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "Codex" },
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3,<9.0",
+  "ruff>=0.6,<1.0",
+  "kafka-python>=2.0.2,<3.0.0",
+]
+kafka = [
+  "kafka-python>=2.0.2,<3.0.0",
+]
+spark = [
+  "pyspark>=3.5.1,<4.0.0",
+]
+postgres = [
+  "psycopg[binary]>=3.2,<4.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/de_pipeline"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+markers = [
+  "integration: marks tests that exercise external runtimes or multi-module flows",
+]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "B",
+  "UP",
+]
