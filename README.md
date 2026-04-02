@@ -54,9 +54,11 @@ realtime-ecommerce-funnel-analytics/
 |   # Ignores local virtual envs, storage outputs, caches, logs, and build files.
 |
 |-- apps/
+|   # Runnable application entrypoints live here.
 |   |-- __init__.py
 |   |   # Marks apps as a Python package.
 |   `-- event_generator/
+|       # Event source simulation for the pipeline.
 |       |-- __init__.py
 |       |   # Marks the event generator app as a package.
 |       `-- main.py
@@ -64,33 +66,40 @@ realtime-ecommerce-funnel-analytics/
 |           # Supports dry-run mode and Kafka publishing mode.
 |
 |-- src/
+|   # Shared reusable Python code used across apps, jobs, and orchestration.
 |   `-- de_pipeline/
+|       # Main internal package for the project.
 |       |-- __init__.py
 |       |   # Shared package root and project version.
 |       |-- config/
+|       |   # Centralized project configuration code.
 |       |   |-- __init__.py
 |       |   |   # Re-exports settings helpers.
 |       |   `-- settings.py
 |       |       # Centralized environment-driven configuration for Kafka, storage,
 |       |       # Spark, generator settings, Airflow schedule, and warehouse access.
 |       |-- logging/
+|       |   # Shared logging helpers for structured service logs.
 |       |   |-- __init__.py
 |       |   |   # Re-exports logging helpers.
 |       |   `-- structured.py
 |       |       # JSON-style structured logging used by apps and jobs.
 |       |-- schemas/
+|       |   # Shared data contracts and validation rules.
 |       |   |-- __init__.py
 |       |   |   # Re-exports event schema helpers.
 |       |   `-- event.py
 |       |       # Core event contract: allowed event types, event dataclass,
 |       |       # validation rules, coercion, and payload serialization.
 |       |-- quality/
+|       |   # Reusable data quality logic.
 |       |   |-- __init__.py
 |       |   |   # Re-exports data quality helpers.
 |       |   `-- checks.py
 |       |       # Small reusable quality logic for counting invalid rows,
 |       |       # duplicates, and missing fields.
 |       `-- utils/
+|           # Utility helpers shared across the project.
 |           |-- __init__.py
 |           |   # Re-exports utility helpers used by jobs and apps.
 |           |-- analytics.py
@@ -102,9 +111,11 @@ realtime-ecommerce-funnel-analytics/
 |               # Builds a SparkSession using central project settings.
 |
 |-- jobs/
+|   # Data processing jobs for streaming and batch layers.
 |   |-- __init__.py
 |   |   # Marks jobs as a Python package.
 |   |-- streaming/
+|   |   # Long-running stream processing jobs.
 |   |   |-- __init__.py
 |   |   |   # Marks streaming jobs as a package.
 |   |   `-- process_events.py
@@ -114,6 +125,7 @@ realtime-ecommerce-funnel-analytics/
 |   |       # - Silver Parquet for validated/deduplicated events
 |   |       # - Quarantine Parquet for invalid records
 |   `-- batch/
+|       # Batch transformations and warehouse load jobs.
 |       |-- __init__.py
 |       |   # Marks batch jobs as a package.
 |       |-- build_daily_analytics.py
@@ -123,13 +135,17 @@ realtime-ecommerce-funnel-analytics/
 |           # Runs SQL-based warehouse quality checks against PostgreSQL.
 |
 |-- airflow/
+|   # Airflow-specific orchestration assets.
 |   `-- dags/
+|       # Workflow definitions that schedule and coordinate jobs.
 |       `-- build_daily_analytics_marts.py
 |           # Airflow DAG definition for the daily batch path:
 |           # build marts, then run quality checks.
 |
 |-- sql/
+|   # SQL assets for DDL, marts, and warehouse quality checks.
 |   |-- ddl/
+|   |   # Database schema and table creation scripts.
 |   |   |-- 01_create_schemas.sql
 |   |   |   # Creates PostgreSQL schemas used by the project.
 |   |   |-- 02_create_staging_user_events_silver.sql
@@ -138,6 +154,7 @@ realtime-ecommerce-funnel-analytics/
 |   |       # Defines curated analytics tables such as daily KPIs,
 |   |       # funnel metrics, session metrics, and product metrics.
 |   |-- marts/
+|   |   # Reusable analytics queries for reporting and exploration.
 |   |   |-- 01_daily_kpis.sql
 |   |   |   # Query for daily KPI reporting.
 |   |   |-- 02_conversion_funnel.sql
@@ -147,6 +164,7 @@ realtime-ecommerce-funnel-analytics/
 |   |   `-- 04_product_daily_metrics.sql
 |   |       # Query for daily product/category performance.
 |   `-- checks/
+|       # SQL-based data quality checks against warehouse tables.
 |       |-- 01_daily_kpis_not_empty.sql
 |       |   # Quality rule: the KPI table must not be empty.
 |       |-- 02_no_duplicate_event_ids.sql
@@ -157,18 +175,23 @@ realtime-ecommerce-funnel-analytics/
 |           # Quality rule: product metrics table must contain data.
 |
 |-- infra/
+|   # Local runtime and infrastructure-related assets.
 |   |-- docker/
+|   |   # Docker build assets for local services.
 |   |   `-- airflow.Dockerfile
 |   |       # Custom Airflow image for this repo with project code
 |   |       # and required Python dependencies installed.
 |   `-- postgres/
+|       # PostgreSQL bootstrap and seed data files.
 |       |-- products_seed.csv
 |       |   # Small seed dimension table for product/category metadata.
 |       `-- init/
+|           # Initialization SQL executed when the database container starts.
 |           `-- 00_create_airflow_db.sql
 |               # Creates the Airflow metadata database in PostgreSQL.
 |
 |-- docs/
+|   # Human-readable project documentation.
 |   |-- architecture.md
 |   |   # Explains the end-to-end system design and data flow.
 |   |-- data_contract.md
@@ -179,12 +202,15 @@ realtime-ecommerce-funnel-analytics/
 |       # Maps the local architecture to equivalent GCP services.
 |
 `-- tests/
+    # Test suite for shared logic and pipeline scaffolding.
     |-- fixtures/
+    |   # Static test input data used by unit and integration tests.
     |   |-- sample_events.json
     |   |   # Sample event payloads for tests and examples.
     |   `-- sample_products.csv
     |       # Sample product dimension input for tests.
     |-- unit/
+    |   # Fast tests for pure Python logic.
     |   |-- test_event_schema.py
     |   |   # Tests event validation and coercion logic.
     |   |-- test_event_generator.py
@@ -194,6 +220,7 @@ realtime-ecommerce-funnel-analytics/
     |   `-- test_analytics.py
     |       # Tests pure Python KPI, session, and deduplication logic.
     `-- integration/
+        # Heavier tests that validate multi-module or runtime-dependent behavior.
         |-- test_streaming_transforms.py
         |   # Tests Bronze/Silver/Quarantine streaming transformations with Spark.
         |-- test_batch_aggregations.py
